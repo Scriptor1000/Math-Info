@@ -196,6 +196,11 @@ class Graph:
         """
         if not self.has_euler_circle():
             return []
+        
+        # Handle empty graph case
+        if not self._graph:
+            return []
+            
         solution = []
         stack = []
         graph = {k: v.copy() for k, v in self._graph.items()}
@@ -223,6 +228,17 @@ class Graph:
             tuple: A tuple representing the Hamiltonian circle, or empty list if none exists.
         """
         vertexes = list(self._graph.keys())
+        
+        # Handle empty graph or single vertex cases
+        if len(vertexes) == 0:
+            return []
+        if len(vertexes) == 1:
+            # Single vertex can form a Hamilton circle only if it has a self-loop
+            vertex = vertexes[0]
+            if vertex in self._graph[vertex]:
+                return (vertex,)
+            return []
+            
         for permutation in itertools.permutations(vertexes):
             if all(permutation[i+1] in self._graph[permutation[i]] for i in range(len(vertexes)-1)) and permutation[0] in self._graph[permutation[-1]]:
                 return permutation
