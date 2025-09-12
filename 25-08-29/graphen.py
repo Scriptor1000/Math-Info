@@ -29,7 +29,7 @@ class Graph:
         return self._graph[vertex]
 
     def get_degree(self, vertex) -> int:
-        return len(self._graph[vertex]) + 1 if vertex in self._graph[vertex] else 0
+        return len(self._graph[vertex]) + sum(targets.count(vertex) for targets in self._graph.values())
 
     def is_reflexive(self) -> bool:
         return all(vertex in vertices for vertex, vertices in self._graph.items())
@@ -43,6 +43,28 @@ class Graph:
     def is_transitiv(self) -> bool:
         return all(t_target in vertices for vertex, vertices in self._graph.items() for target in vertices for t_target in self._graph[target])
 
+    def has_euler_circle(self) -> bool:
+        return all(self.get_degree(v) % 2 == 0 for v in self._graph)
+
+    def find_euler_circle(self):
+        if not self.has_euler_circle():
+            return []
+        solution = []
+        stack = []
+        graph = {k: v.copy() for k, v in self._graph.items()}
+
+        start_vertex = list(graph.keys())[0]
+        stack.append(start_vertex)
+
+        while stack:
+            vertex = stack[-1]
+            if vertices := graph[vertex]:
+                next_vertex = vertices.pop()
+                stack.append(next_vertex)
+            else:
+                solution.append(stack.pop())
+        return solution[::-1]
+
     def __str__(self):
         s = ""
         for k, v in self._graph.items():
@@ -54,8 +76,14 @@ if __name__ == "__main__":
     b = Vertex("B")
     c = Vertex("C")
     d = Vertex("D")
-    g = Graph({a: [b], b: [b, c, d], c: [a], d: []})
-    print(g.is_reflexive())
-    print(g.is_symmetric())
-    print(g.is_antisymmetric())
-    print(g.is_transitiv())
+    e = Vertex("E")
+    f = Vertex("F")
+    g = Vertex("G")
+    h = Vertex("H")
+    i = Vertex("I")
+
+    k = Graph({a: [f], b: [a,d], c: [b], d: [e,c], e: [f], f: [b, d]})
+    print(list(map(str, k.find_euler_circle())))
+
+    g = Graph({a: [i, e, f], b: [a, c], c: [e, i], d: [b, c], e: [d, f], f: [g, a, d], g: [h], h: [f, a], i: [h, b]})
+    print(list(map(str, g.find_euler_circle())))
