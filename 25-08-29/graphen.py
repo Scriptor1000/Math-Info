@@ -33,36 +33,15 @@ class Graph:
 
     def is_reflexive(self) -> bool:
         return all(vertex in vertices for vertex, vertices in self._graph.items())
-        for vertex, vertices in self._graph.items():
-            if vertex not in vertices:
-                return False
-        return True
 
     def is_symmetric(self) -> bool:
         return all(vertex in self._graph[target] for vertex, vertices in self._graph.items() for target in vertices)
-        for vertex, vertices in self._graph.items():
-            for target in vertices:
-                if vertex not in self._graph[target]:
-                    return False
-        return True
 
     def is_antisymmetric(self) -> bool:
         return all(target == vertex or vertex not in self._graph[target] for vertex, vertices in self._graph.items() for target in vertices)
-        for vertex, vertices in self._graph.items():
-            for target in vertices:
-                if vertex in self._graph[target] and target != vertex:
-                    return False
-        return True
 
     def is_transitiv(self) -> bool:
         return all(t_target in vertices for vertex, vertices in self._graph.items() for target in vertices for t_target in self._graph[target])
-        for vertex, vertices in self._graph.items():
-            for target in vertices:
-                for t_target in self._graph[target]:
-                    if t_target not in vertices:
-                        return False
-        return True
-
 
     def __str__(self):
         s = ""
