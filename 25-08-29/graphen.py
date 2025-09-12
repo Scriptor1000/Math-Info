@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import pprint
+import itertools
 
 
 class Vertex:
@@ -65,6 +65,13 @@ class Graph:
                 solution.append(stack.pop())
         return solution[::-1]
 
+    def find_hamilton_circle(self):
+        vertexes = list(self._graph.keys())
+        for permutation in itertools.permutations(vertexes):
+            if all(permutation[i+1] in self._graph[permutation[i]] for i in range(len(vertexes)-1)) and permutation[0] in self._graph[permutation[-1]]:
+                return permutation
+        return []
+
     def __str__(self):
         s = ""
         for k, v in self._graph.items():
@@ -84,6 +91,8 @@ if __name__ == "__main__":
 
     k = Graph({a: [f], b: [a,d], c: [b], d: [e,c], e: [f], f: [b, d]})
     print(list(map(str, k.find_euler_circle())))
+    print(k.find_hamilton_circle())
 
     g = Graph({a: [i, e, f], b: [a, c], c: [e, i], d: [b, c], e: [d, f], f: [g, a, d], g: [h], h: [f, a], i: [h, b]})
     print(list(map(str, g.find_euler_circle())))
+    print(g.find_hamilton_circle())
