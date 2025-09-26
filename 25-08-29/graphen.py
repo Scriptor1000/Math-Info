@@ -72,6 +72,25 @@ class Graph:
                 return permutation
         return []
 
+    def is_connected(self):
+        reachable: dict[Vertex, set[Vertex]] = {v: set([v]) for v in self._graph}
+
+        for start_vertex in self._graph:
+            adjacent_vertexes: set[Vertex] = set()
+            adjacent_vertexes.update(self._graph[start_vertex])
+            while adjacent_vertexes:
+                current_vertex = adjacent_vertexes.pop()
+                reachable[start_vertex].add(current_vertex)
+                reachable[start_vertex].update(reachable[current_vertex])
+                if len(reachable[start_vertex]) == len(self._graph):
+                    break
+                for next_vertex in self._graph[current_vertex]:
+                    if next_vertex not in reachable[start_vertex]:
+                        adjacent_vertexes.add(next_vertex)
+            if len(reachable[start_vertex]) != len(self._graph):
+                return False
+        return True
+
     def __str__(self):
         s = ""
         for k, v in self._graph.items():
@@ -88,6 +107,12 @@ if __name__ == "__main__":
     g = Vertex("G")
     h = Vertex("H")
     i = Vertex("I")
+
+    l = Graph({a: [c], b: [c], c: [d], d: [a]})
+    print(l.is_connected())
+
+    m = Graph({a: [f, e], b: [a], c: [b], d: [a], e: [f], f: [b, c, d]})
+    print(m.is_connected())
 
     k = Graph({a: [f], b: [a,d], c: [b], d: [e,c], e: [f], f: [b, d]})
     print(list(map(str, k.find_euler_circle())))
