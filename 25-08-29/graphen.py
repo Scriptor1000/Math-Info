@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from collections import defaultdict
 import itertools
 
 
@@ -96,6 +96,94 @@ class Graph:
         for k, v in self._graph.items():
             s += f"{k}: {list(map(str, v))}\n"
         return s[:-1]
+
+class WeightedGraph(Graph):
+    def __init__(self, graph: dict[Vertex, dict[Vertex, int]]):
+        self._graph = {k: list(v.keys()) for k, v in graph.items()}
+        self.weights = {(k, target): weight for k, v in graph.items() for target, weight in v.items()}
+
+    def find_minimal_spanning_tree(self):
+        edges = [(weight, v1, v2) for (v1, v2), weight in self.weights.items()]
+        sorted_edges = sorted(edges, key=lambda x: x[0])
+        mst = []
+
+        for weight, v1, v2 in sorted_edges:
+            v1, v2 = edges[weight]
+            if not self._creates_cycle(mst, v1, v2):
+                mst.append((v1, v2, weight))
+
+        _graph = defaultdict(dict)
+        for v1, v2, weight in mst:
+            _graph[v1][v2] = weight
+            
+        return WeightedGraph(_graph)
+
+    def _creates_cycle(self, mst, v1, v2):
+        parent = {}
+
+        def find(vertex):
+            if parent[vertex] != vertex:
+                parent[vertex] = find(parent[vertex])
+            return parent[vertex]
+
+        def union(v1, v2):
+            root1 = find(v1)
+            root2 = find(v2)
+            if root1 != root2:
+                parent[root2] = root1
+
+        for u, v, _ in mst:
+            parent[u] = u
+            parent[v] = v
+
+        for u, v, _ in mst:
+            union(u, v)
+
+        if v1 not in parent:
+            parent[v1] = v1
+        if v2 not in parent:
+            parent[v2] = v2
+
+        return find(v1) == find(v2)
+        
+    
+    def find_minimal_spanning_tree_copilot(self):
+        """Finds the minimal spanning tree using Kruskal's algorithm. 
+        Implemented by pressing Tab to accept Github Copilot's suggestion."""
+
+        parent = {}
+        rank = {}
+
+        def find(vertex):
+            if parent[vertex] != vertex:
+                parent[vertex] = find(parent[vertex])
+            return parent[vertex]
+
+        def union(v1, v2):
+            root1 = find(v1)
+            root2 = find(v2)
+            if root1 != root2:
+                if rank[root1] > rank[root2]:
+                    parent[root2] = root1
+                else:
+                    parent[root1] = root2
+                    if rank[root1] == rank[root2]:
+                        rank[root2] += 1
+
+        for vertex in self._graph:
+            parent[vertex] = vertex
+            rank[vertex] = 0
+
+        edges = sorted(self.weights.items(), key=lambda item: item[1])
+        mst = []
+
+        for (v1, v2), weight in edges:
+            if find(v1) != find(v2):
+                union(v1, v2)
+                mst.append((v1, v2, weight))
+
+        return mst
+
 
 if __name__ == "__main__":
     a = Vertex("A")
