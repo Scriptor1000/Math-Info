@@ -102,49 +102,45 @@ class WeightedGraph(Graph):
         self._graph = {k: list(v.keys()) for k, v in graph.items()}
         self.weights = {(k, target): weight for k, v in graph.items() for target, weight in v.items()}
 
-    def find_minimal_spanning_tree(self):
+    def find_minimal_spanning_tree(self) -> 'WeightedGraph':
+        self.parents = {}
         edges = [(weight, v1, v2) for (v1, v2), weight in self.weights.items()]
         sorted_edges = sorted(edges, key=lambda x: x[0])
-        mst = []
+        self.mst = []
 
         for weight, v1, v2 in sorted_edges:
-            v1, v2 = edges[weight]
-            if not self._creates_cycle(mst, v1, v2):
-                mst.append((v1, v2, weight))
+            if not self._creates_cycle(v1, v2):
+                self.mst.append((v1, v2, weight))
 
         _graph = defaultdict(dict)
-        for v1, v2, weight in mst:
+        for v1, v2, weight in self.mst:
             _graph[v1][v2] = weight
             
         return WeightedGraph(_graph)
 
-    def _creates_cycle(self, mst, v1, v2):
-        parent = {}
-
+    def _creates_cycle(self, v1, v2):
         def find(vertex):
-            if parent[vertex] != vertex:
-                parent[vertex] = find(parent[vertex])
-            return parent[vertex]
+            if self.parents[vertex] != vertex:
+                self.parents[vertex] = find(self.parents[vertex])
+            return self.parents[vertex]
 
         def union(v1, v2):
             root1 = find(v1)
             root2 = find(v2)
             if root1 != root2:
-                parent[root2] = root1
+                self.parents[root2] = root1
 
-        for u, v, _ in mst:
-            parent[u] = u
-            parent[v] = v
 
-        for u, v, _ in mst:
-            union(u, v)
+        if v1 not in self.parents:
+            self.parents[v1] = v1
+        if v2 not in self.parents:
+            self.parents[v2] = v2
 
-        if v1 not in parent:
-            parent[v1] = v1
-        if v2 not in parent:
-            parent[v2] = v2
-
-        return find(v1) == find(v2)
+        if find(v1) == find(v2):
+            return True
+        
+        union(v1, v2)
+        return False
         
     
     def find_minimal_spanning_tree_copilot(self):
@@ -209,3 +205,7 @@ if __name__ == "__main__":
     g = Graph({a: [i, e, f], b: [a, c], c: [e, i], d: [b, c], e: [d, f], f: [g, a, d], g: [h], h: [f, a], i: [h, b]})
     print(list(map(str, g.find_euler_circle())))
     print(g.find_hamilton_circle())
+
+    g = WeightedGraph({a: {b: 7, d: 5}, b: {a: 7, c: 8, d: 9, e: 7}, c: {b: 8, e: 5}, d: {a: 5, b: 9, e: 15, f: 6}, e: {b: 7, c: 5, d: 15, f: 8}, f: {d: 6, e: 8}})
+    mst = g.find_minimal_spanning_tree()
+    print(mst)
