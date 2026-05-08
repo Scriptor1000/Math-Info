@@ -1,6 +1,7 @@
 import math
 
 probality_of_collision = lambda k: 1 - math.factorial(365) / (math.factorial(365 - k) * 365 ** k) 
+probality_of_collision = lambda k: 1 - eval('*'.join(range(1,365+1))) / (eval('*'.join(range(1,365+1-k))) * 365 ** k) 
 
 while True:
     while not (i := input("Anzahl der Personen: ")).isnumeric():
