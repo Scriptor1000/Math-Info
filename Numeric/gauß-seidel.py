@@ -53,7 +53,8 @@ class GSSystem:
             self.iterate()
             print(f"Iteration {self.iteration}: Approximate result = {self.approximate_result}, Error = {self.error}")
 
-    
+    def __str__(self):
+        return f"Iteration {self.iteration}: Approximate result = {self.approximate_result}, Error = {self.error}"
 
 
 if __name__ == "__main__":
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 
     system = GSSystem(coefficients, absolute_values)
     system.iterate()
-    print(f"Iteration {system.iteration}: Approximate result = {system.approximate_result}, Error = {system.error}")
+    print(system)
 
 
     exact_result = np.linalg.solve(coefficients, absolute_values) 
